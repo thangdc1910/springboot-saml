@@ -46,10 +46,10 @@ public class SecurityConfiguration {
     @Value("${okta.metadata.file}")
     private String OKTA_METADATA_LOCATION;
 
-    @Value("${private.key}")
+/*    @Value("${private.key}")
     String privateKey;
     @Value("${public.certificate}")
-    String publicCertificate;
+    String publicCertificate;*/
 
     @Bean
     SecurityFilterChain configure(HttpSecurity http) throws Exception {
@@ -96,7 +96,7 @@ public class SecurityConfiguration {
         };
     }
 
-    private X509Certificate getCertificate(String certificatePath) throws CertificateException, IOException {
+/*    private X509Certificate getCertificate(String certificatePath) throws CertificateException, IOException {
         Resource resource = new ClassPathResource(certificatePath);
 
         return (X509Certificate) CertificateFactory.getInstance("X.509").generateCertificate(resource.getInputStream());
@@ -106,7 +106,7 @@ public class SecurityConfiguration {
         Resource resource = new ClassPathResource(keyPath);
 
         return RsaKeyConverters.pkcs8().convert(resource.getInputStream());
-    }
+    }*/
 
     /*  @Bean
   public RelyingPartyRegistrationRepository relyingPartyRegistrations(){
@@ -117,12 +117,12 @@ public class SecurityConfiguration {
 
     @Bean
     public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws IOException, CertificateException {
-        Saml2X509Credential credential = Saml2X509Credential.signing(getKey(privateKey), getCertificate(publicCertificate));
+       // Saml2X509Credential credential = Saml2X509Credential.signing(getKey(privateKey), getCertificate(publicCertificate));
 
         RelyingPartyRegistration okta = RelyingPartyRegistrations.fromMetadataLocation(OKTA_METADATA_LOCATION)
                 .registrationId("okta")
                 .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
-                .signingX509Credentials((signing) -> signing.add(credential))
+            //    .signingX509Credentials((signing) -> signing.add(credential))
                 .build();
 
         return new InMemoryRelyingPartyRegistrationRepository(okta);
