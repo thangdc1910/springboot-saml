@@ -2,10 +2,3 @@ server.error.include-stacktrace: always
 okta.metadata.file: classpath:OktaMetadata22.xml
 private.key: local.key
 public.certificate: local.crt
-
-server:
-  ssl:
-    key-store: classpath:saml/helios_qa_20221010.keystore
-    key-store-password: supersecret
-    keyStoreType: JKS
-    keyAlias: heliosdev
