@@ -2,3 +2,8 @@ server.error.include-stacktrace: always
 okta.metadata.file: classpath:OktaMetadata.xml
 private.key: local.key
 public.certificate: local.crt
+
+server:
+  servlet:
+    session:
+      timeout: 3m
