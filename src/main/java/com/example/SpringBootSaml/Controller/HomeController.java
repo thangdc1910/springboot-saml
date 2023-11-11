@@ -22,8 +22,8 @@ public class HomeController {
     @RequestMapping("/")
     public String home(@AuthenticationPrincipal Saml2AuthenticatedPrincipal principal, Model model) {
         model.addAttribute("name", principal.getName());
-        model.addAttribute("emailAddress", principal.getFirstAttribute("email"));
-        model.addAttribute("userAttributes", principal.getAttributes());
+      /*  model.addAttribute("emailAddress", principal.getFirstAttribute("email"));
+        model.addAttribute("userAttributes", principal.getAttributes());*/
 
         return "home";
     }

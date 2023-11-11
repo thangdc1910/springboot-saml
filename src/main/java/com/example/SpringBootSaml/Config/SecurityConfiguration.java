@@ -10,14 +10,12 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.apache.http.protocol.HTTP;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -34,8 +32,6 @@ import org.springframework.security.saml2.provider.service.registration.RelyingP
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrationRepository;
 import org.springframework.security.saml2.provider.service.registration.RelyingPartyRegistrations;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
-import org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository;
 
 import static org.springframework.security.config.Customizer.withDefaults;
 
@@ -43,21 +39,25 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
-    @Value("${okta.metadata.file}")
-    private String OKTA_METADATA_LOCATION;
+    @Value("${metadata.file}")
+    private String METADATA_LOCATION;
 
     @Value("${private.key}")
     String privateKey;
     @Value("${public.certificate}")
     String publicCertificate;
 
+    @Value("${registration.id}")
+    private String registrationId;
+
+    private static final String OKTA = "okta";
+    private static final String AZURE = "azure";
+
     @Bean
     SecurityFilterChain configure(HttpSecurity http) throws Exception {
 
         OpenSaml4AuthenticationProvider authenticationProvider = new OpenSaml4AuthenticationProvider();
         authenticationProvider.setResponseAuthenticationConverter(groupsConverter());
-
-      //  http.csrf().csrfTokenRepository(CookieCsrfTokenRepository.withHttpOnlyFalse());
 
         http.csrf().disable();
 
@@ -66,13 +66,17 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/saml2/**").permitAll()
-                        .requestMatchers(HttpMethod.GET, "/**", "/**/*").hasAnyAuthority("Action_Group", "ReadOnly_Group")
-                        .requestMatchers(HttpMethod.POST, "/**").hasAnyAuthority("Action_Group")
-                        .requestMatchers(HttpMethod.POST, "/**/*").hasAnyAuthority("Action_Group")
+                        // .requestMatchers(HttpMethod.GET, "/**").permitAll()
+                        //.requestMatchers(HttpMethod.GET, "/**", "/**/*").hasAnyAuthority("Action_Group", "ReadOnly_Group")
+                        //.requestMatchers(HttpMethod.POST, "/**").hasAnyAuthority("Action_Group")
+                        //.requestMatchers(HttpMethod.POST, "/**/*").hasAnyAuthority("Action_Group")
                         .anyRequest().authenticated())
                 .saml2Login(saml2 -> saml2
                         .authenticationManager(new ProviderManager(authenticationProvider)))
                 .saml2Logout(withDefaults());
+
+        http.logout().logoutSuccessUrl("https://google.com").invalidateHttpSession(true).deleteCookies("JSESSIONID");
+
 
         return http.build();
     }
@@ -108,19 +112,15 @@ public class SecurityConfiguration {
         return RsaKeyConverters.pkcs8().convert(resource.getInputStream());
     }
 
-    /*  @Bean
-  public RelyingPartyRegistrationRepository relyingPartyRegistrations(){
-      RelyingPartyRegistration okta = RelyingPartyRegistrations.fromMetadataLocation(OKTA_METADATA_LOCATION).registrationId("okta").build();
-
-      return new InMemoryRelyingPartyRegistrationRepository(okta);
-  }*/
 
     @Bean
     public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws IOException, CertificateException {
         Saml2X509Credential credential = Saml2X509Credential.signing(getKey(privateKey), getCertificate(publicCertificate));
 
-        RelyingPartyRegistration okta = RelyingPartyRegistrations.fromMetadataLocation(OKTA_METADATA_LOCATION)
-                .registrationId("okta")
+        RelyingPartyRegistration okta = RelyingPartyRegistrations.fromMetadataLocation(METADATA_LOCATION)
+                .registrationId(registrationId)
+                //in azure i config entityID= batoac.com  - in okta i do not config
+                .entityId(registrationId.equals(AZURE) ? "batoac.com" : String.format("{baseUrl}/saml2/service-provider-metadata/%s", registrationId))
                 .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
                 .signingX509Credentials((signing) -> signing.add(credential))
                 .build();

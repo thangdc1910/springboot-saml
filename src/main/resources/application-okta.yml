@@ -4,5 +4,10 @@ private.key: local.key
 public.certificate: local.crt
 registration.id: okta
 
+server:
+  servlet:
+    session:
+      timeout: 5m
+
 
 
