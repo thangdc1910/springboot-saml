@@ -7,4 +7,4 @@ entity.id: lacda.com
 
 logging:
   level:
-    root: DEBUG
+    root: TRACE
