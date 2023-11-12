@@ -3,6 +3,8 @@ metadata.file: classpath:AzureMetadata.xml
 private.key: azure2/private_key.pem
 public.certificate: azure2/public_key.crt
 registration.id: azure
+entity.id: batoac.com
+
 
 
 server:

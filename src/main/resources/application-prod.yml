@@ -1,8 +1,9 @@
 server.error.include-stacktrace: always
-metadata.file: classpath:AzureMetadata.xml
+metadata.file: classpath:AzureProdMetadata.xml
 private.key: azure2/private_key.pem
 public.certificate: azure2/public_key.crt
 registration.id: azure
+entity.id: lacda.com
 
 logging:
   level:

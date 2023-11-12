@@ -50,6 +50,9 @@ public class SecurityConfiguration {
     @Value("${registration.id}")
     private String registrationId;
 
+    @Value("${entity.id}")
+    private String entityId;
+
     private static final String OKTA = "okta";
     private static final String AZURE = "azure";
 
@@ -122,7 +125,7 @@ public class SecurityConfiguration {
         RelyingPartyRegistration registration = RelyingPartyRegistrations.fromMetadataLocation(METADATA_LOCATION)
                 .registrationId(registrationId)
                 //in azure i config entityID= batoac.com  - in okta i do not config
-                .entityId(registrationId.equals(AZURE) ? "batoac.com" : String.format("{baseUrl}/saml2/service-provider-metadata/%s", registrationId))
+                .entityId(registrationId.equals(AZURE) ? entityId : String.format("{baseUrl}/saml2/service-provider-metadata/%s", registrationId))
                 .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
                 .signingX509Credentials((signing) -> signing.add(credential))
                 .build();
