@@ -4,8 +4,14 @@ private.key: azure/dev1.key
 public.certificate: azure/dev1.crt
 registration.id: azure
 
+
 server:
   port: 443
   ssl:
     key-store: classpath:keystore.p12
     key-store-password: 123456789
+
+
+logging:
+  level:
+    root: DEBUG

@@ -1,18 +1,5 @@
 server.error.include-stacktrace: always
-okta.metadata.file: classpath:OktaMetadata_PROD.xml
-
-spring:
-  security:
-    saml2:
-      relyingparty:
-        registration:
-          okta:
-            assertingparty:
-              metadata-uri:
-            signing:
-              credentials:
-                - private-key-location: classpath:local.key
-                  certificate-location: classpath:local.crt
-            singlelogout:
-              binding: POST
-              response-url: "{baseUrl}/logout/saml2/slo"
+metadata.file: classpath:OktaMetadata_PROD.xml
+private.key: local.key
+public.certificate: local.crt
+registration.id: okta

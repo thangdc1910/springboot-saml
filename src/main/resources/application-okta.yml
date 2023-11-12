@@ -5,9 +5,13 @@ public.certificate: local.crt
 registration.id: okta
 
 server:
-  servlet:
-    session:
-      timeout: 5m
+  forward-headers-strategy: native
+  port: 443
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: 123456789
 
-
+logging:
+  level:
+    root: DEBUG
 

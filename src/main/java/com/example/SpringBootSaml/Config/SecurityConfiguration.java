@@ -39,6 +39,9 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @EnableWebSecurity
 public class SecurityConfiguration {
 
+
+    private static final String LOGOUT_CALLBACK_URL = "/logout/saml2/slo";
+
     @Value("${metadata.file}")
     private String METADATA_LOCATION;
 
@@ -66,6 +69,8 @@ public class SecurityConfiguration {
         http.authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/**").permitAll()
                         .requestMatchers("/saml2/**").permitAll()
+                        //to fix error The InResponseTo attribute [] does not match the ID ...
+                        //.requestMatchers("/favicon.ico").permitAll()
                         // .requestMatchers(HttpMethod.GET, "/**").permitAll()
                         //.requestMatchers(HttpMethod.GET, "/**", "/**/*").hasAnyAuthority("Action_Group", "ReadOnly_Group")
                         //.requestMatchers(HttpMethod.POST, "/**").hasAnyAuthority("Action_Group")
@@ -73,9 +78,14 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated())
                 .saml2Login(saml2 -> saml2
                         .authenticationManager(new ProviderManager(authenticationProvider)))
-                .saml2Logout(withDefaults());
+                //todo
+                .saml2Logout((saml2) -> saml2
+                        .logoutRequest((request) -> request.logoutUrl(LOGOUT_CALLBACK_URL))
+                        .logoutResponse((response) -> response.logoutUrl(LOGOUT_CALLBACK_URL))
+                );
 
-        http.logout().logoutSuccessUrl("https://google.com").invalidateHttpSession(true).deleteCookies("JSESSIONID");
+        //it works in okta, but not work in azure? do not know why???? - azure automatically call /login after /logout -
+       // http.logout().logoutSuccessUrl("http://localhost:8080").invalidateHttpSession(true).deleteCookies("JSESSIONID");
 
 
         return http.build();
@@ -117,14 +127,15 @@ public class SecurityConfiguration {
     public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws IOException, CertificateException {
         Saml2X509Credential credential = Saml2X509Credential.signing(getKey(privateKey), getCertificate(publicCertificate));
 
-        RelyingPartyRegistration okta = RelyingPartyRegistrations.fromMetadataLocation(METADATA_LOCATION)
+        RelyingPartyRegistration registration = RelyingPartyRegistrations.fromMetadataLocation(METADATA_LOCATION)
                 .registrationId(registrationId)
                 //in azure i config entityID= batoac.com  - in okta i do not config
                 .entityId(registrationId.equals(AZURE) ? "batoac.com" : String.format("{baseUrl}/saml2/service-provider-metadata/%s", registrationId))
                 .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
+                .singleLogoutServiceResponseLocation("/abc.com")
                 .signingX509Credentials((signing) -> signing.add(credential))
                 .build();
 
-        return new InMemoryRelyingPartyRegistrationRepository(okta);
+        return new InMemoryRelyingPartyRegistrationRepository(registration);
     }
 }
