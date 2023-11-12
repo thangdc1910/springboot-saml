@@ -3,3 +3,7 @@ metadata.file: classpath:OktaMetadata_PROD.xml
 private.key: local.key
 public.certificate: local.crt
 registration.id: okta
+
+logging:
+  level:
+    root: DEBUG

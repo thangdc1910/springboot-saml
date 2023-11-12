@@ -1,7 +1,6 @@
 package com.example.SpringBootSaml.Config;
 
 import java.io.IOException;
-import java.io.InputStream;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -38,8 +37,6 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
-
-
     private static final String LOGOUT_CALLBACK_URL = "/logout/saml2/slo";
 
     @Value("${metadata.file}")
@@ -79,14 +76,10 @@ public class SecurityConfiguration {
                 .saml2Login(saml2 -> saml2
                         .authenticationManager(new ProviderManager(authenticationProvider)))
                 //todo
-                .saml2Logout((saml2) -> saml2
-                        .logoutRequest((request) -> request.logoutUrl(LOGOUT_CALLBACK_URL))
-                        .logoutResponse((response) -> response.logoutUrl(LOGOUT_CALLBACK_URL))
-                );
+                .saml2Logout(withDefaults());
 
         //it works in okta, but not work in azure? do not know why???? - azure automatically call /login after /logout -
        // http.logout().logoutSuccessUrl("http://localhost:8080").invalidateHttpSession(true).deleteCookies("JSESSIONID");
-
 
         return http.build();
     }
@@ -122,7 +115,6 @@ public class SecurityConfiguration {
         return RsaKeyConverters.pkcs8().convert(resource.getInputStream());
     }
 
-
     @Bean
     public RelyingPartyRegistrationRepository relyingPartyRegistrations() throws IOException, CertificateException {
         Saml2X509Credential credential = Saml2X509Credential.signing(getKey(privateKey), getCertificate(publicCertificate));
@@ -132,7 +124,6 @@ public class SecurityConfiguration {
                 //in azure i config entityID= batoac.com  - in okta i do not config
                 .entityId(registrationId.equals(AZURE) ? "batoac.com" : String.format("{baseUrl}/saml2/service-provider-metadata/%s", registrationId))
                 .singleLogoutServiceLocation("{baseUrl}/logout/saml2/slo")
-                .singleLogoutServiceResponseLocation("/abc.com")
                 .signingX509Credentials((signing) -> signing.add(credential))
                 .build();
 
