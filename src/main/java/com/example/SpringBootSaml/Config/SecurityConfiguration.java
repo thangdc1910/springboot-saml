@@ -64,7 +64,7 @@ public class SecurityConfiguration {
         http.httpBasic().disable();
 
         http.authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/api/**").permitAll()
+                        //.requestMatchers("/api/**").permitAll()
                         .requestMatchers("/saml2/**").permitAll()
                         //to fix error The InResponseTo attribute [] does not match the ID ...
                         //.requestMatchers("/favicon.ico").permitAll()

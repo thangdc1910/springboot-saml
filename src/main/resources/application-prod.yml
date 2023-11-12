@@ -1,8 +1,8 @@
 server.error.include-stacktrace: always
-metadata.file: classpath:OktaMetadata_PROD.xml
-private.key: local.key
-public.certificate: local.crt
-registration.id: okta
+metadata.file: classpath:AzureMetadata.xml
+private.key: azure2/private_key.pem
+public.certificate: azure2/public_key.crt
+registration.id: azure
 
 logging:
   level:

@@ -1,11 +1,12 @@
 server.error.include-stacktrace: always
 metadata.file: classpath:AzureMetadata.xml
-private.key: azure/dev1.key
-public.certificate: azure/dev1.crt
+private.key: azure2/private_key.pem
+public.certificate: azure2/public_key.crt
 registration.id: azure
 
 
 server:
+  forward-headers-strategy: native
   port: 443
   ssl:
     key-store: classpath:keystore.p12
