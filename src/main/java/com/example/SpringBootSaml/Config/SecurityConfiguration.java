@@ -68,6 +68,7 @@ public class SecurityConfiguration {
 
         http.authorizeHttpRequests(authorize -> authorize
                         //.requestMatchers("/api/**").permitAll()
+                        .requestMatchers("/logout/**").permitAll()
                         .requestMatchers("/saml2/**").permitAll()
                         //to fix error The InResponseTo attribute [] does not match the ID ...
                         //.requestMatchers("/favicon.ico").permitAll()
@@ -82,7 +83,7 @@ public class SecurityConfiguration {
                 .saml2Logout(withDefaults());
 
         //it works in okta, but not work in azure? do not know why???? - azure automatically call /login after /logout -
-        http.logout().logoutSuccessUrl(entityId.equals("lacda.com") ? "https://spring-render-okh9.onrender.com" : "https://localhost").invalidateHttpSession(true).deleteCookies("JSESSIONID");
+      //  http.logout().logoutSuccessUrl(entityId.equals("lacda.com") ? "https://spring-render-okh9.onrender.com" : "https://localhost").invalidateHttpSession(true).deleteCookies("JSESSIONID");
 
         return http.build();
     }
